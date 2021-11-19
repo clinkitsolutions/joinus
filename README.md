@@ -16,7 +16,7 @@ For this exercise, we need you to:
 
 4) Reply to the initial instruction email with a link to your copy of the repo. Make sure to add our account if the copy is private.
 
-## The Problem
+## Background
 
 This repo contains a theoretical work-in-progress app called Fleet that is used to keep track of vehicles. At any given time, one or more vehicle information is sent to the server by a number of clients. This information is logged and considered the latest information for that vehicle. If a vehicle is unknown, then a new entry is created for it. Vehicles are also part of zero or more fleets, which are basically just an arbitrary group or list of vehicles.
 
@@ -28,7 +28,7 @@ The Fleet app is also expanding and will now be used to track all kinds of asset
 
 There is a feature request to be able to manually upload a file containing historical information about assets. Each item contains a timestamp of when the information for that particular asset was logged, so it might not necessarily be the latest information for the asset.
 
-Users should be able to browse uploaded CSV files and view the assets' static location on the map as of that file. If the information in the CSV file represents the latest details about an asset, then that should reflect in the real-time view.
+Users should be able to browse uploaded files and view the assets' static location on the map as of that file. If the information in the file represents the latest details about an asset, then that should reflect in the real-time view.
 
 There might also be a few bugs in the latest commit of the repo, and you should be able to fix that.
 
