@@ -1,0 +1,53 @@
+[leaflet] {
+    height: 100vh;
+    position: relative;
+}
+
+.controls {
+    background-color: white;
+    border-radius: 0 5px 5px 0;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    font-size: 1.6rem;
+    min-width: 300px;
+    position: absolute;
+    top: 2rem;
+    z-index: 600;
+
+    input[type="search"] {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1.4rem;
+        margin: 2rem;
+        outline: none;
+        padding: 0.8rem 1.2rem;
+    }
+
+    h4 {
+        font-size: 1.2rem;
+        margin: 0;
+        padding: 1rem 3rem;
+        text-transform: uppercase;
+    }
+
+    .fleets {
+        margin-bottom: 2rem;
+
+        li {
+            a {
+                color: #333;
+                display: block;
+                text-decoration: none;
+                padding: 1rem 3rem;
+
+                &.active,
+                &:hover {
+                    background-color: #39BEF0;
+                    color: white;
+                }
+            }
+        }
+    }
+}

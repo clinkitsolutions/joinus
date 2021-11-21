@@ -1,0 +1,19 @@
+<div leaflet [leafletOptions]="options" [leafletLayersControl]="layersControl" [leafletLayers]="filteredLayers">
+</div>
+
+<div class="controls">
+    <input type="search" placeholder="Ctrl+F to search vehicles" [(ngModel)]="searchFilter" name="searchFilter" #searchFilterField />
+    <h4>Fleets</h4>
+    <ul class="fleets">
+        <li>
+            <a [routerLink]="['/home']" [ngClass]="{'active': activeFleet == undefined}" [queryParams]="{'fleet': null}">All</a>
+        </li>
+        <li *ngFor="let fleet of fleets">
+            <a [routerLink]="['/home']" routerLinkActive="active" [queryParams]="{'fleet': fleet.id}">{{fleet.name}}</a>
+        </li>
+    </ul>
+
+    <spinner class="overlay" *ngIf="fleetsLoading"></spinner>
+</div>
+
+<spinner class="overlay" *ngIf="vehiclesLoading"></spinner>

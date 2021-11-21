@@ -1,25 +1,44 @@
+﻿using System.Reflection;
+using System.Text.Json.Serialization;
+
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+var services = builder.Services;
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyMethod(); ;
+        builder.WithOrigins("http://localhost:4200", "https://localhost:4200");
+        builder.AllowAnyHeader();
+        builder.AllowCredentials();
+    });
+});
+services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
+services.AddVehicleService(configuration.GetSection("VehicleService"), Assembly.GetExecutingAssembly());
+
+// Add Swagger UI
+services.AddApiDocumentation();
+
+// Build the app and configure the request pipeline
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseCors();
 app.UseRouting();
-
 app.UseAuthorization();
-
-app.MapRazorPages();
-
+app.MapControllers();
+app.UseApiDocumentation();
 app.Run();

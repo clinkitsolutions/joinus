@@ -1,1 +1,41 @@
 /* You can add global styles to this file, and also import other style files */
+html,
+body {
+    color: #333;
+    font-family: "Open Sans", sans-serif;
+    font-size: 10px;
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+spinner.overlay {
+    bottom: 0;
+    cursor: wait;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 500;
+
+    &:before {
+        background-color: white;
+        content: "";
+        height: 100%;
+        opacity: 0.75;
+        position: absolute;
+        width: 100%;
+    }
+}
