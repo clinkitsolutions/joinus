@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LeafletControlLayersConfig, LeafletDirective } from '@asymmetrik/ngx-leaflet';
 import * as L from 'leaflet';
-import { delay } from 'rxjs';
+import { catchError, delay, interval, of, switchMap, tap, timer } from 'rxjs';
 import { GetFleetsRequest } from 'src/api/models';
 import { FleetsService, VehiclesService } from 'src/api/services';
 
@@ -80,12 +80,14 @@ export class HomeComponent implements OnInit {
     }
 
     loadVehicles() {
-        this.layers = this.layers.filter(l => false);
         this.vehiclesLoading = true;
-        this.vehiclesService.apiVehiclesGet$Json({ FleetId: this.activeFleet })
-            .pipe(delay(1000))
-            .subscribe({
-                next: (response) => {
+        timer(0, 3000)
+            .pipe(
+                delay(1000),
+                switchMap(() => this.vehiclesService.apiVehiclesGet$Json({ FleetId: this.activeFleet })),
+                tap(response => {
+                    this.layers = this.layers.filter(l => false);
+                    this.vehiclesLoading = false;
                     if (response.vehicles == null) return;
 
                     let vehicles = response.vehicles.filter(v => v.lastKnownLocation != null);
@@ -109,14 +111,12 @@ export class HomeComponent implements OnInit {
                     });
 
                     markers.forEach(m => this.layers.push(m));
-                },
-                error: (response) => {
+                }),
+                catchError(response => {
                     this.vehiclesLoading = false;
-                },
-                complete: () => {
-                    this.vehiclesLoading = false;
-                }
-            });
+                    return of(response);
+                })
+            ).subscribe();
     }
 
     get filteredLayers(): L.Layer[] {
