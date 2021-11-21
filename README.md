@@ -10,11 +10,13 @@ For this exercise, we need you to:
 
 1) Fork or clone this repo. You can choose to fork it and be public. If you prefer a private repository, clone the repo, publish it privately, and add engineering@clinkitsolutions.com to the repo so we can have access to review your work.
 
-2) Add your changes. Try to put focus on the areas you are strong at. If you can prettify the UI or improve the user experience, do so. If you think the backend needs work and you can make those changes, go ahead. We want to see changes related to the problem below, but if you're feeling creative, go wild. Feeling a bit more React or Svelte-y? Re-write the UI! You think unit tests with 100% code coverage are mandatory? Write 'em. Clean code is the one true way of writing code? Refactor everything. The app has potential and you wanna prepare for the next 1M users and Series A funding? Perhaps design a new architecture? We just request that you keep the backend to .NET as this is our primary stack.
+2) Add your changes. Try to put focus on the areas you are strong at. If you can prettify the UI or improve the user experience, do so. If you think the backend needs work and you can make those changes, go ahead. We want to see changes related to the problem below, but if you're feeling creative, go wild. Feeling a bit more React or Svelte-y? Re-write the UI! You think unit tests with 100% code coverage are mandatory? Write 'em. Clean code is the one true way of writing code? Refactor everything. The app has potential and you wanna prepare for the next 1M users and Series A funding? Perhaps design a new architecture. There is no limit to what you can add or change. We just request that you keep the backend to .NET as this is our primary stack.
 
 3) Update the readme with information about your changes and include instructions on how to run the projects. Ideally, it should be as simple as an ```npm install``` and ```npm start``` for the UI and a `dotnet run` for the backend. If you feel like putting the project up on an accessible server, you're more than welcome.
 
 4) Reply to the initial instruction email with a link to your copy of the repo. Make sure to add our account if the copy is private.
+
+5) Prepare for the technical interview afterwards.
 
 ## Background
 
@@ -22,7 +24,9 @@ This repo contains a theoretical work-in-progress app called Fleet that is used 
 
 The UI consists of a real-time view with a map that shows the latest location of each vehicle along with additional information. The user can then filter the view by fleet.
 
-The Fleet app is also expanding and will now be used to track all kinds of assets, from vehicles to work-issued equipment of varying frequency (real-time, end-of-day, once-every-n-hours), so it is expecting heavier traffic.
+The Fleet app is also expanding and will now be used to track all kinds of assets, from vehicles to work-issued equipment of varying frequency (real-time, end-of-day, once-every-n-hours), so it might expect heavier traffic.
+
+In its current state, it is built using .NET 6.0 and SQLite for the backend and Angular 13 for the frontend.
 
 ## Technical Requirements
 
@@ -39,6 +43,8 @@ To summarize, here are the basic requirements, but as mentioned, you can be more
 3) A new endpoint that returns the assets given a previously uploaded file
 4) UI changes to support the requirements
 5) Backend or database changes needed if any
+
+You are not required to complete or add all of the changes. However, we will partly be assessing you based on how much you have completed and how you answer questions related to your work.
 
 Instructions for running the app can be found in the respective folders: [ui](ui) and [api](api).
 
