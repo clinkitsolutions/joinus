@@ -23,6 +23,20 @@ namespace Fleet.Api.Controllers
         /// <returns>A list of fleets</returns>
         [HttpGet]
         [Route("")]
-        public Task<GetFleetsResponse> GetFleetsAsync([FromQuery] GetFleetsRequest request) => _fleetService.GetFleetsAsync(request);
+        public async Task<IActionResult> GetFleetsAsync([FromQuery] GetFleetsRequest request)
+        {
+            GetFleetsResponse response;
+            try
+            {
+                response = await _fleetService.GetFleetsAsync(request);
+            }
+            catch (Exception e)
+            {
+                // Log exception
+                return StatusCode(500);
+            }
+
+            return Ok(response);
+        }
     }
 }

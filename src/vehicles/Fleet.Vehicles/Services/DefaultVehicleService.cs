@@ -36,7 +36,10 @@ namespace Fleet.Vehicles.Services
                 Id = v.Id,
                 Name = v.Name,
                 Type = v.Type,
-                LastKnownLocation = v.Log?.LastOrDefault()?.Location
+                LastKnownLocation = v.Log?
+                    .OrderBy(x => x.Location.Timestamp)
+                    .LastOrDefault()?
+                    .Location
             });
 
             var response = new GetVehiclesResponse
@@ -109,7 +112,10 @@ namespace Fleet.Vehicles.Services
                 Id = v.Id,
                 Name = v.Name,
                 Type = v.Type,
-                LastKnownLocation = v.Log?.LastOrDefault()?.Location
+                LastKnownLocation = v.Log?
+                    .OrderBy(x => x.Location.Timestamp)
+                    .LastOrDefault()?
+                    .Location
             });
 
             var response = new GetVehiclesResponse
