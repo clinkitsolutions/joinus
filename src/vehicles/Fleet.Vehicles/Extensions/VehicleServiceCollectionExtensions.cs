@@ -13,7 +13,8 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddVehicleService(this IServiceCollection services, IConfiguration configuration, Assembly containingAssembly)
         {
-            services.Configure<VehicleDbContextOptions>(configuration);
+            services.Configure<VehicleDbContextOptions>(configuration.GetSection(VehicleDbContextOptions.Name));
+            services.Configure<FileUploadOptions>(configuration.GetSection(FileUploadOptions.Name));
             services.AddDbContext<VehicleDbContext>((serviceProvider, options) =>
             {
                 var config = serviceProvider.GetRequiredService<IOptions<VehicleDbContextOptions>>();

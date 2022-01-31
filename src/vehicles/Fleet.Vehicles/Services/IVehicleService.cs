@@ -1,5 +1,6 @@
 ﻿using Fleet.Vehicles.Requests;
 using Fleet.Vehicles.Responses;
+using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
 namespace Fleet.Vehicles.Services
@@ -9,5 +10,7 @@ namespace Fleet.Vehicles.Services
         Task<GetVehiclesResponse> GetVehiclesAsync(GetVehiclesRequest request);
 
         Task<UpdateVehicleLogsResponse> UpdateVehicleLogsAsync(UpdateVehicleLogsRequest request);
+
+        Task<UpdateVehicleLogsResponse> UpdateVehicleLogsFromCsvAsync(IFormFile request);
     }
 }

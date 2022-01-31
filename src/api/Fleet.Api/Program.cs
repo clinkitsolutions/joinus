@@ -22,7 +22,7 @@ services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-services.AddVehicleService(configuration.GetSection("VehicleService"), Assembly.GetExecutingAssembly());
+services.AddVehicleService(configuration, Assembly.GetExecutingAssembly());
 
 // Add Swagger UI
 services.AddApiDocumentation();

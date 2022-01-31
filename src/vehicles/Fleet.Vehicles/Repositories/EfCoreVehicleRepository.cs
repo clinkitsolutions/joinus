@@ -19,8 +19,11 @@ namespace Fleet.Vehicles.Repositories
 
         public async Task CreateAsync(Vehicle vehicle)
         {
-            _database.Vehicles.Add(vehicle);
-            await _database.SaveChangesAsync();
+            if (!_database.Vehicles.Any(v => v.Name == vehicle.Name))
+            {
+                _database.Vehicles.Add(vehicle);
+                await _database.SaveChangesAsync();
+            }
         }
 
         public async Task<Vehicle> GetAsync(int id)

@@ -1,9 +1,17 @@
-﻿using Fleet.Vehicles.Models;
+﻿using CsvHelper;
+using Fleet.Common;
+using Fleet.Vehicles.Models;
 using Fleet.Vehicles.Repositories;
 using Fleet.Vehicles.Requests;
 using Fleet.Vehicles.Responses;
 using Fleet.Vehicles.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -14,12 +22,16 @@ namespace Fleet.Vehicles.Services
     {
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IVehicleLogItemRepository _vehicleLogItemRepository;
+        private readonly FileUploadOptions _options;
 
-        public DefaultVehicleService(IVehicleRepository vehicleRepository,
-            IVehicleLogItemRepository vehicleLogItemRepository)
+        public DefaultVehicleService(
+            IVehicleRepository vehicleRepository,
+            IVehicleLogItemRepository vehicleLogItemRepository,
+            IOptions<FileUploadOptions> options)
         {
             _vehicleRepository = vehicleRepository;
             _vehicleLogItemRepository = vehicleLogItemRepository;
+            _options = options.Value;
         }
 
         public async Task<GetVehiclesResponse> GetVehiclesAsync(GetVehiclesRequest request)
@@ -36,10 +48,7 @@ namespace Fleet.Vehicles.Services
                 Id = v.Id,
                 Name = v.Name,
                 Type = v.Type,
-                LastKnownLocation = v.Log?
-                    .OrderBy(x => x.Location.Timestamp)
-                    .LastOrDefault()?
-                    .Location
+                LastKnownLocation = v.Log?.LastOrDefault()?.Location
             });
 
             var response = new GetVehiclesResponse
@@ -52,9 +61,54 @@ namespace Fleet.Vehicles.Services
 
         public async Task<UpdateVehicleLogsResponse> UpdateVehicleLogsAsync(UpdateVehicleLogsRequest request)
         {
+            await UpdateVehicleLogs(request.Updates);
+
+            var response = new UpdateVehicleLogsResponse
+            {
+
+            };
+
+            return response;
+        }
+        
+        public async Task<UpdateVehicleLogsResponse> UpdateVehicleLogsFromCsvAsync(IFormFile request)
+        {
+            bool isAccepted = false;
+            if (request.Length > 0)
+            {
+                if (request.FileName == $"{_options.AcceptedFileName}.csv")
+                {
+                    var vehicleLogs = GetCsvRecordFromFile(request);
+
+                    if (vehicleLogs != null && vehicleLogs.Count > 0)
+                    {
+                        await UpdateVehicleLogs(VehicleLogFileToViewModel(vehicleLogs));
+                        isAccepted = true;
+                    }
+                }
+
+                var filePath = isAccepted ? _options.AcceptedFilePath : _options.RejectedFilePath;
+
+                // save uploaded file
+                using (var stream = File.Create($"{filePath}\\{request.FileName.Replace(".csv", "-" + DateTime.Now.ToString("yyyy-MM-ddTHHmmssZ") + ".csv")}"))
+                {
+                    await request.CopyToAsync(stream);
+                }
+            }
+
+            var response = new UpdateVehicleLogsResponse
+            {
+
+            };
+
+            return response;
+        }
+
+        private async Task UpdateVehicleLogs(IEnumerable<VehicleUpdateViewModel> updates)
+        {
             var vehicles = new Dictionary<int, Vehicle>();
 
-            foreach (var update in request.Updates)
+            foreach (var update in updates)
             {
                 Vehicle vehicle;
                 if (update.VehicleId.HasValue)
@@ -62,7 +116,15 @@ namespace Fleet.Vehicles.Services
                     if (!vehicles.ContainsKey(update.VehicleId.Value))
                     {
                         vehicle = await _vehicleRepository.GetAsync(update.VehicleId.Value);
-                        vehicles.Add(update.VehicleId.Value, vehicle);
+                        if (vehicle != null)
+                        {
+                            vehicles.Add(update.VehicleId.Value, vehicle);
+                        }
+                        else
+                        {
+                            // TODO: Add log that the vehicleId is not existing
+                            continue;
+                        }
                     }
                     else
                     {
@@ -87,21 +149,16 @@ namespace Fleet.Vehicles.Services
                     continue;
                 }
 
-                var vehicleLogItem = new VehicleLogItem
+                if (vehicle != null && update.Location.Timestamp <= DateTime.Now)
                 {
-                    Vehicle = vehicle,
-                    Location = update.Location
-                };
-
-                await _vehicleLogItemRepository.CreateAsync(vehicleLogItem);
+                    var vehicleLogItem = new VehicleLogItem
+                    {
+                        Vehicle = vehicle,
+                        Location = update.Location
+                    };
+                    await _vehicleLogItemRepository.CreateAsync(vehicleLogItem);
+                }
             }
-
-            var response = new UpdateVehicleLogsResponse
-            {
-
-            };
-
-            return response;
         }
 
         private async Task<GetVehiclesResponse> GetVehiclesByFleetId(int? fleetId)
@@ -112,10 +169,7 @@ namespace Fleet.Vehicles.Services
                 Id = v.Id,
                 Name = v.Name,
                 Type = v.Type,
-                LastKnownLocation = v.Log?
-                    .OrderBy(x => x.Location.Timestamp)
-                    .LastOrDefault()?
-                    .Location
+                LastKnownLocation = v.Log?.LastOrDefault()?.Location
             });
 
             var response = new GetVehiclesResponse
@@ -124,6 +178,42 @@ namespace Fleet.Vehicles.Services
             };
 
             return response;
+        }
+
+        private List<VehicleLogFile> GetCsvRecordFromFile(IFormFile file)
+        {
+            List<VehicleLogFile> vehicleLogs;
+            using (var textReader = new StreamReader(file.OpenReadStream()))
+            using (var csv = new CsvReader(textReader, CultureInfo.InvariantCulture))
+            {
+                vehicleLogs = csv.GetRecords<VehicleLogFile>().ToList();
+            }
+
+            return vehicleLogs;
+        }
+
+        private List<VehicleUpdateViewModel> VehicleLogFileToViewModel(List<VehicleLogFile> logFiles)
+        {
+            var vehicleUpdateViewModels = new List<VehicleUpdateViewModel>();
+
+            logFiles.ForEach(logFile =>
+            {
+                vehicleUpdateViewModels.Add(
+                    new VehicleUpdateViewModel
+                    {
+                        Name = logFile.Name,
+                        VehicleId = logFile.VehicleId,
+                        Type = logFile.Type,
+                        Location = new Location
+                        {
+                            Latitude = logFile.Latitude,
+                            Longitude = logFile.Longitude,
+                            Timestamp = logFile.Timestamp,
+                        }
+                    });
+            });
+
+            return vehicleUpdateViewModels;
         }
     }
 }
