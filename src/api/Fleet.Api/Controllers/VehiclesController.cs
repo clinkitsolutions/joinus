@@ -65,16 +65,21 @@ namespace Fleet.Api.Controllers
         /// <summary>
         /// Update vehicle location logs from CSV file
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="file"></param>
         /// <returns>An empty response</returns>
         [Route("logs/csv")]
         [HttpPut("UploadFiles")]
-        public async Task<IActionResult> UpdateVehiclesFromCsvAsync(IFormFile request)
+        public async Task<IActionResult> UpdateVehiclesFromCsvAsync(IFormFile file)
         {
             UpdateVehicleLogsResponse response;
             try
             {
-                response = await _vehicleService.UpdateVehicleLogsFromCsvAsync(request);
+                response = await _vehicleService.UpdateVehicleLogsFromCsvAsync(file);
+            }
+            catch (ArgumentException e)
+            {
+                // Log exception
+                return BadRequest(e.Message);
             }
             catch (Exception e)
             {

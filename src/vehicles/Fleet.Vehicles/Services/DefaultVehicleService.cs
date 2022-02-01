@@ -71,14 +71,14 @@ namespace Fleet.Vehicles.Services
             return response;
         }
         
-        public async Task<UpdateVehicleLogsResponse> UpdateVehicleLogsFromCsvAsync(IFormFile request)
+        public async Task<UpdateVehicleLogsResponse> UpdateVehicleLogsFromCsvAsync(IFormFile file)
         {
             bool isAccepted = false;
-            if (request.Length > 0)
+            if (file.Length > 0)
             {
-                if (request.FileName == $"{_options.AcceptedFileName}.csv")
+                if (file.FileName == $"{_options.AcceptedFileName}.csv")
                 {
-                    var vehicleLogs = GetCsvRecordFromFile(request);
+                    var vehicleLogs = GetCsvRecordFromFile(file);
 
                     if (vehicleLogs != null && vehicleLogs.Count > 0)
                     {
@@ -90,10 +90,15 @@ namespace Fleet.Vehicles.Services
                 var filePath = isAccepted ? _options.AcceptedFilePath : _options.RejectedFilePath;
 
                 // save uploaded file
-                using (var stream = File.Create($"{filePath}\\{request.FileName.Replace(".csv", "-" + DateTime.Now.ToString("yyyy-MM-ddTHHmmssZ") + ".csv")}"))
+                using (var stream = File.Create($"{filePath}\\{file.FileName.Replace(".csv", "-" + DateTime.Now.ToString("yyyy-MM-ddTHHmmss") + ".csv")}"))
                 {
-                    await request.CopyToAsync(stream);
+                    await file.CopyToAsync(stream);
                 }
+            }
+
+            if (!isAccepted)
+            {
+                throw new ArgumentNullException("Invalid file");
             }
 
             var response = new UpdateVehicleLogsResponse
