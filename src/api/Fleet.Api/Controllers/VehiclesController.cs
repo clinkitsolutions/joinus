@@ -10,10 +10,19 @@ namespace Fleet.Api.Controllers
     public class VehiclesController : Controller
     {
         private readonly IVehicleService _vehicleService;
+        private readonly ILogger _logger;
 
-        public VehiclesController(IVehicleService vehicleService)
+        /// <summary>
+        /// Api Controller for Vehicles
+        /// </summary>
+        /// <param name="vehicleService"></param>
+        /// <param name="logger"></param>
+        public VehiclesController(
+            IVehicleService vehicleService,
+            ILogger<VehiclesController> logger)
         {
             _vehicleService = vehicleService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -32,7 +41,7 @@ namespace Fleet.Api.Controllers
             }
             catch (Exception e)
             {
-                //Log exception
+                _logger.LogError(e.ToString());
                 return StatusCode(500);
             }
 
@@ -55,7 +64,7 @@ namespace Fleet.Api.Controllers
             }
             catch (Exception e)
             {
-                // Log exception
+                _logger.LogError(e.ToString());
                 return StatusCode(500);
             }
 
@@ -78,12 +87,12 @@ namespace Fleet.Api.Controllers
             }
             catch (ArgumentException e)
             {
-                // Log exception
-                return BadRequest(e.Message);
+                _logger.LogError(e.ToString());
+                return BadRequest("Invalid File.");
             }
             catch (Exception e)
             {
-                // Log exception
+                _logger.LogError(e.ToString());
                 return StatusCode(500);
             }
 

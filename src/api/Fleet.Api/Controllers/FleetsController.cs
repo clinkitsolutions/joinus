@@ -10,10 +10,19 @@ namespace Fleet.Api.Controllers
     public class FleetsController : Controller
     {
         private readonly IFleetService _fleetService;
+        private readonly ILogger _logger;
 
-        public FleetsController(IFleetService fleetService)
+        /// <summary>
+        /// Api Controller for Fleets 
+        /// </summary>
+        /// <param name="fleetService"></param>
+        /// <param name="logger"></param>
+        public FleetsController(
+            IFleetService fleetService,
+            ILogger<FleetsController> logger)
         {
             _fleetService = fleetService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -32,7 +41,7 @@ namespace Fleet.Api.Controllers
             }
             catch (Exception e)
             {
-                // Log exception
+                _logger.LogError(e.ToString());
                 return StatusCode(500);
             }
 

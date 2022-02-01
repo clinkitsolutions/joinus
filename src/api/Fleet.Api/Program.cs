@@ -1,9 +1,19 @@
-﻿using System.Reflection;
+﻿using Microsoft.AspNetCore.HttpLogging;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var services = builder.Services;
+
+// Add Http Logging
+services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+    logging.MediaTypeOptions.AddText("application/javascript");
+    logging.RequestBodyLogLimit = 4096;
+    logging.ResponseBodyLogLimit = 4096;
+});
 
 // Add services to the container.
 services.AddCors(options =>
@@ -41,4 +51,5 @@ app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 app.UseApiDocumentation();
+app.UseHttpLogging();
 app.Run();

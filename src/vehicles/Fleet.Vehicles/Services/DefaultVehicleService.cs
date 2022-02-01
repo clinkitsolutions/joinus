@@ -7,6 +7,7 @@ using Fleet.Vehicles.Responses;
 using Fleet.Vehicles.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -22,15 +23,18 @@ namespace Fleet.Vehicles.Services
     {
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IVehicleLogItemRepository _vehicleLogItemRepository;
+        private readonly ILogger _logger;
         private readonly FileUploadOptions _options;
 
         public DefaultVehicleService(
             IVehicleRepository vehicleRepository,
             IVehicleLogItemRepository vehicleLogItemRepository,
+            ILogger<DefaultVehicleService> logger,
             IOptions<FileUploadOptions> options)
         {
             _vehicleRepository = vehicleRepository;
             _vehicleLogItemRepository = vehicleLogItemRepository;
+            _logger = logger;
             _options = options.Value;
         }
 
@@ -63,11 +67,7 @@ namespace Fleet.Vehicles.Services
         {
             await UpdateVehicleLogs(request.Updates);
 
-            var response = new UpdateVehicleLogsResponse
-            {
-
-            };
-
+            var response = new UpdateVehicleLogsResponse();
             return response;
         }
         
@@ -98,14 +98,11 @@ namespace Fleet.Vehicles.Services
 
             if (!isAccepted)
             {
-                throw new ArgumentNullException("Invalid file");
+                _logger.LogError($"{nameof(UpdateVehicleLogsFromCsvAsync)}: Invalid File ({file?.FileName})"); 
+                throw new ArgumentException("Invalid file");
             }
 
-            var response = new UpdateVehicleLogsResponse
-            {
-
-            };
-
+            var response = new UpdateVehicleLogsResponse();
             return response;
         }
 
@@ -127,7 +124,7 @@ namespace Fleet.Vehicles.Services
                         }
                         else
                         {
-                            // TODO: Add log that the vehicleId is not existing
+                            _logger.LogWarning($"{nameof(UpdateVehicleLogs)}: Record for {nameof(update.VehicleId)} does not exist.");
                             continue;
                         }
                     }
@@ -155,6 +152,7 @@ namespace Fleet.Vehicles.Services
                 }
                 else
                 {
+                    _logger.LogWarning($"{nameof(UpdateVehicleLogs)}: Record doesn't have a valid Vehicle Identifier");
                     // No vehicle ID, and no name and type, so we just skip since we don't know what this is
                     continue;
                 }
@@ -167,6 +165,7 @@ namespace Fleet.Vehicles.Services
                         Location = update.Location
                     };
                     await _vehicleLogItemRepository.CreateAsync(vehicleLogItem);
+                    _logger.LogInformation($"{nameof(UpdateVehicleLogs)}: Added log for Vehicle ({vehicle.Name})");
                 }
             }
         }
