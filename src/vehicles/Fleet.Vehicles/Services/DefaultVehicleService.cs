@@ -138,15 +138,20 @@ namespace Fleet.Vehicles.Services
                 }
                 else if (!string.IsNullOrEmpty(update.Name) && update.Type.HasValue)
                 {
-                    vehicle = new Vehicle
-                    {
-                        Name = update.Name,
-                        Type = update.Type.Value,
-                        Log = new List<VehicleLogItem>(),
-                        VehicleFleets = new List<VehicleFleet>()
-                    };
+                    vehicle = await _vehicleRepository.GetAsync(update.Name, update.Type.Value);
 
-                    await _vehicleRepository.CreateAsync(vehicle);
+                    if (vehicle == null)
+                    {
+                        vehicle = new Vehicle
+                        {
+                            Name = update.Name,
+                            Type = update.Type.Value,
+                            Log = new List<VehicleLogItem>(),
+                            VehicleFleets = new List<VehicleFleet>()
+                        };
+
+                        await _vehicleRepository.CreateAsync(vehicle);
+                    }
                 }
                 else
                 {

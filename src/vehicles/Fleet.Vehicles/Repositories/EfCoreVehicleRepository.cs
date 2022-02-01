@@ -19,17 +19,21 @@ namespace Fleet.Vehicles.Repositories
 
         public async Task CreateAsync(Vehicle vehicle)
         {
-            if (!_database.Vehicles.Any(v => v.Name == vehicle.Name))
-            {
-                _database.Vehicles.Add(vehicle);
-                await _database.SaveChangesAsync();
-            }
+            _database.Vehicles.Add(vehicle);
+            await _database.SaveChangesAsync();
         }
 
         public async Task<Vehicle> GetAsync(int id)
         {
             return await _database.Vehicles
                 .Where(v => v.Id == id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Vehicle> GetAsync(string name, VehicleType type)
+        {
+            return await _database.Vehicles
+                .Where(v => v.Name == name && v.Type == type)
                 .FirstOrDefaultAsync();
         }
 
@@ -50,5 +54,6 @@ namespace Fleet.Vehicles.Repositories
                 .Include(v => v.Log.OrderBy(l => l.Location.Timestamp))
                 .ToListAsync();
         }
+
     }
 }

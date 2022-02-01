@@ -10,6 +10,7 @@ namespace Fleet.Vehicles.Repositories
     {
         Task CreateAsync(Vehicle vehicle);
         Task<Vehicle> GetAsync(int id);
+        Task<Vehicle> GetAsync(string name, VehicleType type);
         Task<IEnumerable<Vehicle>> GetAsync();
         Task<IEnumerable<Vehicle>> GetAsync(Expression<Func<Vehicle,bool>> filter);
     }
