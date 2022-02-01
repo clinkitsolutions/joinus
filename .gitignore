@@ -348,3 +348,5 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+src/api/Fleet.Api/fleet.db-shm
+src/api/Fleet.Api/fleet.db-wal
